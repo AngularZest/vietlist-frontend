@@ -7,11 +7,14 @@ import { Router } from '@angular/router'
 import { NgClass, NgFor, NgIf } from '@angular/common'
 import { Component } from '@angular/core'
 import {
+  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators,
 } from '@angular/forms'
 import { MatRadioModule } from '@angular/material/radio'
@@ -19,7 +22,9 @@ import { MatSelectModule } from '@angular/material/select'
 import { AuthService } from '../service/auth.service'
 import Swal from 'sweetalert2'
 import { LoaderComponent } from 'src/app/common-ui'
-
+import { matchValidator } from 'src/app/auth/register/validator';
+import { NgxIntlTelInputModule } from 'ngx-intl-tel-input-gg';
+import { CountryISO, PhoneNumberFormat, SearchCountryField } from 'ngx-intl-tel-input';
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -33,11 +38,20 @@ import { LoaderComponent } from 'src/app/common-ui'
     FormControlValidationDirective,
     LoaderComponent,
     NgClass,
+    NgxIntlTelInputModule
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
+
+  separateDialCode = false;
+	SearchCountryField = SearchCountryField;
+	CountryISO = CountryISO;
+  PhoneNumberFormat = PhoneNumberFormat;
+	preferredCountries: CountryISO[] = [CountryISO.UnitedStates, CountryISO.UnitedKingdom];
+
+  
   public selectedSignupType = Roles.businessOwner
   public role = Roles
   public showTermsError: boolean = false
@@ -48,6 +62,7 @@ export class RegisterComponent {
   ]
   public term_and_condition = new FormControl(false, Validators.required)
   public selectedVal: any
+  showError: any
   public loader: boolean = false
   public isHidePassword: boolean = false
   public isHideConfirmPassword: boolean = false
@@ -65,9 +80,10 @@ export class RegisterComponent {
     private fb: FormBuilder,
     private authService: AuthService,
   ) {
-    this.signupForm = this.fb.nonNullable.group({
+    this.signupForm = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
+      confirm_password: ['', Validators.required],
       business_type: ['', Validators.required],
       email: [
         '',
@@ -79,14 +95,35 @@ export class RegisterComponent {
       ],
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      confirm_password: ['', Validators.required],
+
       role: [''],
       contact_details: ['', Validators.required],
+    }, {
+      validators: matchValidator('password', 'confirm_password')
     });
+
+    // this.signupForm = this.fb.nonNullable.group({
+    //   username: ['', Validators.required],
+    //   password: ['', Validators.required],
+    //   business_type: ['', Validators.required],
+    //   email: [
+    //     '',
+    //     [
+    //       Validators.required,
+    //       Validators.email,
+    //       Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'),
+    //     ],
+    //   ],
+    //   first_name: ['', Validators.required],
+    //   last_name: ['', Validators.required],
+    //   confirm_password: ['', Validators.required],
+    //   role: [''],
+    //   contact_details: ['', Validators.required],
+    // });
     this.usersignupForm = this.fb.nonNullable.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
-
+      confirm_password: ['', Validators.required],
       email: [
         '',
         [
@@ -97,9 +134,11 @@ export class RegisterComponent {
       ],
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      confirm_password: ['', Validators.required],
+
       role: [''],
 
+    }, {
+      validators: matchValidator('password', 'confirm_password')
     });
     console.log(this.rolesArray)
   }
@@ -119,19 +158,17 @@ export class RegisterComponent {
     this.router.navigateByUrl('/login')
   }
 
-  passwordsMismatch() {
-    const passwordControl = this.signupForm.get('password')
-    const confirmPasswordControl = this.signupForm.get('confirm_password')
-    return (
-      passwordControl &&
-      confirmPasswordControl &&
-      confirmPasswordControl.touched &&
-      confirmPasswordControl.dirty &&
 
-      passwordControl.value !== confirmPasswordControl.value
-    )
-  }
+  // passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  //   const password = control.get('password')?.value;
+  //   const confirmPassword = control.get('confirm_password')?.value;
 
+  //   return password !== confirmPassword ? { 'passwordMismatch': true } : null;
+  // }
+
+  // isConfirmPasswordInvalid(): boolean {
+  //   return this.signupForm.hasError('passwordMismatch', ['confirm_password']);
+  // }
   userConfirmPassword() {
     const passwordControl = this.usersignupForm.get('password')
     const confirmPasswordControl = this.usersignupForm.get('confirm_password')
@@ -317,4 +354,14 @@ export class RegisterComponent {
       ? null
       : event.charCode >= 48 && event.charCode <= 57
   }
+
+
+
+
+
 }
+
+
+
+
+

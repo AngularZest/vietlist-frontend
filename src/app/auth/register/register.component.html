@@ -4,6 +4,14 @@
       <h1>Register</h1>
     </div>
   </section>
+  <ngx-intl-tel-input [phoneValidation]="true"   [cssClass]="'custom'"
+  [enableAutoCountrySelect]="false"
+  [enablePlaceholder]="true"
+  [searchCountryFlag]="true"
+  [searchCountryField]="[SearchCountryField.Iso2, SearchCountryField.Name]"
+  [selectFirstCountry]="false"
+  [selectedCountryISO]="CountryISO.India"
+></ngx-intl-tel-input>
   <div class="container">
     <div class="form-cnt">
 
@@ -79,22 +87,37 @@
                 </div>
               </div>
             </div>
-
             <div class="col-12">
               <div class="form-group">
                 <input class="input-control" type="password" formControlName="confirm_password"
                   placeholder="Confirm Password" appFormControlValidation
                   [validationMsgId]="'confirm-password-required-msg'" />
-                <span class="error-message" *ngIf="passwordsMismatch()  ">
+                <!-- <span class="error-message" *ngIf="password?.get('confirm_password').dirty && 
+                             (password?.get('confirm_password').hasError('required') ||
+                             password?.get('password').value !== password?.get('confirm_password').value)">
+                  Confirm Password does not match
+                </span> -->
+              </div>
+            </div>
+
+
+
+
+            <!-- <div class="col-12">
+              <div class="form-group">
+                <input class="input-control" type="password" formControlName="confirm_password"
+                  placeholder="Confirm Password" appFormControlValidation
+                  [validationMsgId]="'confirm-password-required-msg'" />
+                <span class="error-message"*ngIf="isConfirmPasswordInvalid()">
                   Confirm Password does not match
                 </span>
               </div>
-            </div>
+            </div> -->
 
             <div class="col-12">
               <div class="form-group">
                 <input class="input-control" type="tel" (keypress)="onlyNumberKey($event)" placeholder="Contact details"
-                  formControlName="contact_details" />
+                  formControlName="contact_details" maxlength="10"/>
               </div>
             </div>
             <div class="col-12">
@@ -201,9 +224,9 @@
                 <input class="input-control" type="password" formControlName="confirm_password"
                   placeholder="Confirm Password" appFormControlValidation
                   [validationMsgId]="'confirm-password-required-msg'" />
-                <span class="error-message" *ngIf="userConfirmPassword()">
+                <!-- <span class="error-message" *ngIf="userConfirmPassword()">
                   Confirm Password does not match
-                </span>
+                </span> -->
               </div>
             </div>
 
